@@ -1,0 +1,66 @@
+{
+	"name": "Webhooks",
+	"version": "0.0.1",
+	"author": "Mudkip",
+	"url": "https://github.com/mudkipme/mediawiki-webhooks",
+	"description": "Send POST messages to webhooks when certain actions occurred in your MediaWiki sites.",
+	"type": "other",
+	"AutoloadClasses": {
+		"Webhooks": "Webhooks.hooks.php"
+	},
+	"Hooks": {
+		"PageContentSaveComplete": [
+			[
+				"Webhooks::onPageContentSaveComplete"
+			]
+		],
+		"PageContentInsertComplete": [
+			[
+				"Webhooks::onPageContentInsertComplete"
+			]
+		],
+		"ArticleDeleteComplete": [
+			[
+				"Webhooks::onArticleDeleteComplete"
+			]
+		],
+		"TitleMoveComplete": [
+			[
+				"Webhooks::onTitleMoveComplete"
+			]
+		],
+		"LocalUserCreated": [
+			[
+				"Webhooks::onLocalUserCreated"
+			]
+		],
+		"BlockIpComplete": [
+			[
+				"Webhooks::onBlockIpComplete"
+			]
+		],
+		"UploadComplete": [
+			[
+				"Webhooks::onUploadComplete"
+			]
+		],
+		"ArticleProtectComplete": [
+			[
+				"Webhooks::onArticleProtectComplete"
+			]
+		]
+	},
+	"config": {
+		"WebhooksEndpointUrl": "",
+		"WebhooksSecret": "",
+		"WebhooksNewUser": true,
+		"WebhooksBlockedUser": true,
+		"WebhooksAddedArticle": true,
+		"WebhooksRemovedArticle": true,
+		"WebhooksMovedArticle": true,
+		"WebhooksEditedArticle": true,
+		"WebhooksFileUpload": true,
+		"WebhooksProtectedArticle": true
+	},
+	"manifest_version": 1
+}
