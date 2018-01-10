@@ -24,15 +24,15 @@ class Webhooks {
 			return;
         }
         
-        self::sendMessage('EditedArticle', array(
+        self::sendMessage('EditedArticle', [
             'articleId' => $wikiPage->getTitle()->getArticleID(),
             'title'     => $wikiPage->getTitle()->getFullText(),
             'namespace' => $wikiPage->getTitle()->getNsText(),
-            'user'      => $user->getName(),
+            'user'      => (string) $user,
             'isMinor'   => $isMinor,
             'revision'  => $revision->getId(),
-            'baseRevId' => $baseRevId,
-        ));
+            'baseRevId' => $baseRevId
+        ]);
     }
 
     /**
@@ -41,7 +41,7 @@ class Webhooks {
      */
     public static function onPageContentInsertComplete( $wikiPage, User $user, $content, $summary, $isMinor, $isWatch, $section, $flags, Revision $revision ) {
         global $wgWebhooksAddedArticle;
-        if (!$wgWebhooksEditedArticle) {
+        if (!$wgWebhooksAddedArticle) {
             return;
         }
 
@@ -50,56 +50,56 @@ class Webhooks {
             return;
         }
 
-        self::sendMessage('AddedArticle', array(
+        self::sendMessage('AddedArticle', [
             'articleId' => $wikiPage->getTitle()->getArticleID(),
             'title'     => $wikiPage->getTitle()->getFullText(),
             'namespace' => $wikiPage->getTitle()->getNsText(),
-            'user'      => $user->getName(),
+            'user'      => (string) $user,
             'isMinor'   => $isMinor,
-            'revision'  => $revision->getId(),
-        ));
+            'revision'  => $revision->getId()
+        ]);
     }
 
     /**
      * Occurs after the delete article request has been processed
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/ArticleDeleteComplete
      */
-    public static function onArticleDeleteComplete( &$article, User &$user, $reason, $id, Content $content = null, LogEntry $logEntry ) {
+    public static function onArticleDeleteComplete( $article, User $user, $reason, $id, Content $content = null, LogEntry $logEntry ) {
         global $wgWebhooksRemovedArticle;
-        if (!$WebhooksRemovedArticle) {
+        if (!$wgWebhooksRemovedArticle) {
             return;
         }
 
-        self::sendMessage('RemovedArticle', array(
-            'articleId' => $wikiPage->getTitle()->getArticleID(),
-            'title'     => $wikiPage->getTitle()->getFullText(),
-            'namespace' => $wikiPage->getTitle()->getNsText(),
-            'user'      => $user->getName(),
-            'reason'    => $reason,
-        ));
+        self::sendMessage('RemovedArticle', [
+            'articleId' => $article->getTitle()->getArticleID(),
+            'title'     => $article->getTitle()->getFullText(),
+            'namespace' => $article->getTitle()->getNsText(),
+            'user'      => (string) $user,
+            'reason'    => $reason
+        ]);
     }
 
     /**
      * Occurs whenever a request to move an article is completed, after the database transaction commits.
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/TitleMoveComplete
      */
-    public static function onTitleMoveComplete( Title &$title, Title &$newTitle, User $user, $oldid, $newid, $reason, Revision $revision ) {
+    public static function onTitleMoveComplete( Title $title, Title $newTitle, User $user, $oldid, $newid, $reason, Revision $revision ) {
         global $wgWebhooksMovedArticle;
         if (!$wgWebhooksMovedArticle) {
             return;
         }
 
-        self::sendMessage('MovedArticle', array(
+        self::sendMessage('MovedArticle', [
             'title'         => $title->getFullText(),
             'namespace'     => $title->getNsText(),
             'newTitle'      => $newTitle->getFullText(),
             'newNamespace'  => $newTitle->getNsText(),
-            'user'          => $user->getName(),
+            'user'          => (string) $user,
             'reason'        => $reason,
             'oldId'         => $oldid,
             'newId'         => $newid,
-            'revision'      => $revision->getId(),
-        ));
+            'revision'      => $revision->getId()
+        ]);
     }
 
     /**
@@ -107,7 +107,25 @@ class Webhooks {
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/LocalUserCreated
      */
     public static function onLocalUserCreated( $user, $autocreated ) {
+        global $wgWebhooksNewUser;
+        if (!$wgWebhooksNewUser) {
+            return;
+        }
 
+        $email = "";
+		$realname = "";
+		$ipaddress = "";
+		try { $email = $user->getEmail(); } catch (Exception $e) {}
+		try { $realname = $user->getRealName(); } catch (Exception $e) {}
+		try { $ipaddress = $user->getRequest()->getIP(); } catch (Exception $e) {}
+
+        self::sendMessage('NewUser', [
+            'user'          => (string) $user,
+            'email'         => $email,
+            'realname'      => $realname,
+            'ip'            => $ipaddress,
+            'autocreated'   => $autocreated
+        ]);
     }
 
     /**
@@ -115,23 +133,57 @@ class Webhooks {
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/BlockIpComplete
      */
     public static function onBlockIpComplete( Block $block, User $user ) {
+        global $wgWebhooksBlockedUser;
+        if (!$wgWebhooksBlockedUser) {
+            return;
+        }
 
+        self::sendMessage('BlockedUser', [
+            'user'          => (string) ($block->getTarget()),
+            'operator'      => (string) $user
+        ]);
     }
 
     /**
      * Called when a file upload has completed.
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/UploadComplete
      */
-    public static function onUploadComplete( &$image ) {
+    public static function onUploadComplete( $image ) {
+        global $wgWebhooksFileUpload;
+        if (!$wgWebhooksFileUpload) {
+            return;
+        }
 
+        self::sendMessage('FileUpload', [
+            'name'          => (string) ($image->getLocalFile()->getTitle()),
+            'mimeType'      => $image->getLocalFile()->getMimeType(),
+            'size'          => $image->getLocalFile()->getSize(),
+            'description'   => $image->getLocalFile()->getDescription(),
+            'user'          => $image->getLocalFile()->getUser(),
+            'width'         => $image->getLocalFile()->getWidth(),
+            'height'        => $image->getLocalFile()->getHeight()
+        ]);
     }
 
     /**
      * Occurs after the protect article request has been processed
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/ArticleProtectComplete
      */
-    public static function onArticleProtectComplete( &$article, &$user, $protect, $reason, $moveonly ) {
+    public static function onArticleProtectComplete( $article, $user, $protect, $reason, $moveonly ) {
+        global $wgWebhooksProtectedArticle;
+        if (!$wgWebhooksProtectedArticle) {
+            return;
+        }
 
+        self::sendMessage('ProtectedArticle', [
+            'articleId' => $article->getTitle()->getArticleID(),
+            'title'     => $article->getTitle()->getFullText(),
+            'namespace' => $article->getTitle()->getNsText(),
+            'user'      => (string) $user,
+            'protect'   => $protect,
+            'reason'    => $reason,
+            'moveonly'  => $moveonly
+        ]);
     }
 
     /**
@@ -140,24 +192,22 @@ class Webhooks {
     private static function sendMessage( $action, $data ) {
         global $wgWebhooksEndpointUrl, $wgWebhooksSecret;
 
-        $body = json_encode(array(
+        $body = json_encode([
             'action'    => $action,
-            'data'      => $data,
-        ));
+            'data'      => $data
+        ]);
 
         $signature = hash_hmac('sha1', $body, $wgWebhooksSecret);
 
-        $context = stream_context_create(array(
-            'http' => array(
-                'header'  => implode("\r\n", array(
-                    'Content-type: application/json',
-                    'X-Hub-Signature: sha1=' . $signature,
-                )),
-                'method'  => 'POST',
-                'content' => $post,
-            ),
-        ));
-
-        file_get_contents($wgWebhooksEndpointUrl, false, $context);
+        $http = new MultiHttpClient([]);
+        $http->run([
+            'method'    => 'POST',
+            'url'       => $wgWebhooksEndpointUrl,
+            'headers'   => [
+                'Content-Type'      => 'application/json',
+                'X-Hub-Signature'   => 'sha1=' . $signature
+            ],
+            'body'      => $body
+        ]);
     }
 }

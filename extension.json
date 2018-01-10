@@ -1,6 +1,6 @@
 {
 	"name": "Webhooks",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"author": "Mudkip",
 	"url": "https://github.com/mudkipme/mediawiki-webhooks",
 	"description": "Send POST messages to webhooks when certain actions occurred in your MediaWiki sites.",

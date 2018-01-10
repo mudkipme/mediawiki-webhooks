@@ -1,4 +1,5 @@
 MediaWiki Webhooks Extension
+============================
 
 An extension to send POST messages to custom webhooks when certain actions occurred in your MediaWiki sites.
 
@@ -43,6 +44,31 @@ $wgWebhooksEditedArticle = true;
 $wgWebhooksFileUpload = true;
 // Article protection settings changed
 $wgWebhooksProtectedArticle = true;
+```
+
+## Payload
+
+Example delivery:
+
+```
+POST /endpoint_path HTTP/1.1
+
+Host: your_webhook_host
+Accept: */*
+Content-Type: application/json
+X-Hub-Signature: sha1=90a131410bec040bfc7ea1083452cb2656aa6c2b
+User-Agent: wikimedia/multi-http-client v1.0
+Content-Length: 157
+
+{ "action": "EditedArticle",
+  "data":
+   { "articleId": 126121,
+     "title": "测试",
+     "namespace": "",
+     "user": "Mudkip",
+     "isMinor": 0,
+     "revision": 1210165,
+     "baseRevId": false } }
 ```
 
 ## License
