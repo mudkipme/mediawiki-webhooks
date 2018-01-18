@@ -8,7 +8,7 @@ class Webhooks {
      * Occurs after the save page request has been processed
      * @see https://www.mediawiki.org/wiki/Manual:Hooks/PageContentSaveComplete
      */
-    public static function onPageContentSaveComplete( $wikiPage, $user, $content, $summary, $isMinor, $isWatch, $section, $flags, $revision, $status, $baseRevId, $undidRevId ) {
+    public static function onPageContentSaveComplete( $wikiPage, $user, $content, $summary, $isMinor, $isWatch, $section, $flags, $revision, $status, $baseRevId, $undidRevId = 0 ) {
         global $wgWebhooksEditedArticle;
         if (!$wgWebhooksEditedArticle) {
             return;
