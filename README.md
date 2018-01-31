@@ -1,6 +1,10 @@
 MediaWiki Webhooks Extension
 ============================
 
+**This extension is deprecated and no longer maintained in favor of the official [Extension:EventBus](https://mediawiki.org/wiki/Extension:EventBus), which can replace most purposes of this extension and has more features such as job delegation.**
+
+----
+
 An extension to send POST messages to custom webhooks when certain actions occurred in your MediaWiki sites.
 
 ## Requirements
